@@ -1,0 +1,252 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Items API - Lab 3",
+    "description": "Postman collection for testing the Items API. Covers all 4+ endpoints with status code tests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "itemId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Create Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Response has _id field', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('_id');",
+              "    pm.collectionVariables.set('itemId', json._id);",
+              "});",
+              "",
+              "pm.test('Response has correct name', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.name).to.eql('Test Laptop');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Test Laptop\",\n  \"description\": \"A test item for Postman\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/items",
+          "host": ["{{baseUrl}}"],
+          "path": ["items"]
+        },
+        "description": "Creates a new item. Expects 201 Created."
+      }
+    },
+    {
+      "name": "2. Get All Items",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response is an array', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Array contains at least one item', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.length).to.be.greaterThan(0);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/items",
+          "host": ["{{baseUrl}}"],
+          "path": ["items"]
+        },
+        "description": "Retrieves all items. Expects 200 OK."
+      }
+    },
+    {
+      "name": "3. Get Single Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has correct _id', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json._id).to.eql(pm.collectionVariables.get('itemId'));",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/items/{{itemId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["items", "{{itemId}}"]
+        },
+        "description": "Gets a single item by ID (set from Create Item test). Expects 200 OK."
+      }
+    },
+    {
+      "name": "4. Update Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Name was updated', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.name).to.eql('Updated Laptop');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Updated Laptop\",\n  \"description\": \"Updated via Postman test\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/items/{{itemId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["items", "{{itemId}}"]
+        },
+        "description": "Updates an item by ID. Expects 200 OK."
+      }
+    },
+    {
+      "name": "5. Process Item (Async Delay)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test('Response has success message', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.message).to.eql('Item processed successfully after delay');",
+              "});",
+              "",
+              "pm.test('Response contains item object', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json).to.have.property('item');",
+              "    pm.expect(json.item).to.have.property('_id');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Async Item\",\n  \"description\": \"Processed with 2-second delay\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/items/process",
+          "host": ["{{baseUrl}}"],
+          "path": ["items", "process"]
+        },
+        "description": "Creates an item with a 2-second async delay. Expects 201 Created."
+      }
+    },
+    {
+      "name": "6. Delete Item",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response confirms deletion', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.message).to.eql('Item deleted');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/items/{{itemId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["items", "{{itemId}}"]
+        },
+        "description": "Deletes an item by ID. Expects 200 OK."
+      }
+    }
+  ]
+}
